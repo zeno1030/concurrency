@@ -14,4 +14,9 @@ class AccountController(val accountService: AccountService) {
     fun deposit(@PathVariable id: Long, @RequestBody amount: Long): Account {
         return accountService.deposit(id, amount)
     }
+
+    @PostMapping("/{id}/depositWithOutLock")
+    fun depositWithOutLock(@PathVariable id: Long, @RequestBody amount: Long): Account {
+        return accountService.depositWithOutLock(id, amount)
+    }
 }

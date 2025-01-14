@@ -4,23 +4,29 @@ import com.concurrency.concurrency.domain.Account
 import com.concurrency.concurrency.repository.role.AccountRepository
 import com.concurrency.concurrency.service.role.AccountService
 import org.springframework.stereotype.Service
+import java.util.concurrent.atomic.AtomicBoolean
 
 @Service
 class AccountServiceImpl(val repository: AccountRepository) : AccountService {
-    @Volatile private var isProcessing: Boolean = false
+    private val isProcessing = AtomicBoolean(false)
 
-    @Synchronized
     override fun deposit(id: Long, amount: Long): Account {
-        if (isProcessing) {
+        if (isProcessing.compareAndSet(false, true)) {
             throw IllegalStateException("아직 처리 중 입니다.")
         }
-        isProcessing = true
+
         try {
             val account = repository.findAccountBy(id)
             val newBalance = account.balance + amount
-            return repository.deposit(id, newBalance);
+            return repository.deposit(id, newBalance)
         } finally {
-            isProcessing = false
+            isProcessing.set(false)
         }
+    }
+
+    override fun depositWithOutLock(id: Long, amount: Long): Account {
+        val account = repository.findAccountBy(id)
+        val newBalance = account.balance + amount
+        return repository.deposit(id, newBalance)
     }
 }

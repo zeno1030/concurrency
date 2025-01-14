@@ -1,0 +1,11 @@
+### 입금
+POST localhost:8080/1/deposit
+Content-Type: application/json
+
+5000
+
+### 동시성 처리가 없는 입금
+POST localhost:8080/1/depositWithOutLock
+Content-Type: application/json
+
+5000
