@@ -40,4 +40,25 @@ class AccountServiceImplTest() {
         // 예외 발생 확인
         assert(exceptions.get() > 0) { "IllegalStateException이 발생해야 합니다." }
     }
+
+    @Test
+    @DisplayName("동시성 처리가 없는 기능 테스트")
+    fun withOutDepositTest(){
+        val threadPool = Executors.newFixedThreadPool(10)
+        val exceptions = AtomicInteger(0)
+
+        repeat(20) {
+            threadPool.submit {
+                try {
+                    accountService.depositWithOutLock(1, 5000)
+                }catch (e: IllegalStateException){
+                    exceptions.incrementAndGet()
+                }
+            }
+        }
+        threadPool.shutdown()
+        threadPool.awaitTermination(1, TimeUnit.SECONDS)
+
+        assert(exceptions.get() == 0) { "동시성 예외처리가 제대로 발생하지 않았습니다." }
+    }
 }
