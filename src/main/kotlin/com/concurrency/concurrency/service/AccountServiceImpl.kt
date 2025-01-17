@@ -11,6 +11,7 @@ class AccountServiceImpl(val repository: AccountRepository) : AccountService {
     private val isProcessing = AtomicBoolean(false)
 
     override fun deposit(id: Long, amount: Long): Account {
+        // TODO: AOP 처리를 할 수 있을까?
         if (isProcessing.compareAndSet(false, true)) {
             throw IllegalStateException("아직 처리 중 입니다.")
         }
